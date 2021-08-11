@@ -13,7 +13,6 @@
             //     }
             // },
             "args": [
-                "make"
             ],
             "options": {
                 "cwd": "${workspaceFolder}\\System"

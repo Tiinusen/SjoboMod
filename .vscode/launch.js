@@ -13,7 +13,7 @@ if(args.length == 0){
     process.exit(1)
 }
 
-if(args[0] === "POSTed"){
+if(args[0] === "POSTed"){6
     process.chdir('System')
     exec('UnrealED.exe')
 }else if(args[0] === "Postal2"){
@@ -24,13 +24,4 @@ if(args[0] === "POSTed"){
         exec('Postal2',['INI=../'+modName+'/System/'+modName+".ini",'USERINI=../'+modName+'/System/'+modName+".user.ini",'-log', '-windowed','-nosteam'])
     }
 
-}
-console.log("Starting Postal 2 with map \""+args[0]+"\"")
-if(args.length >= 2){
-    
-}else if(args.length >= 1){
-    exec('Postal2',[args[0],'-log','-windowed','-nosteam'], function(err, data) {                        
-    })
-}else{
-    console.error("requires atleast one argument")
 }

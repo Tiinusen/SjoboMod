@@ -40,7 +40,11 @@ function Main() {
         /\.txt$/,
         /\.bmp$/
     ])
-    fs.copyFileSync(modName+".ini", "Postal2.ini")
+    fs.copyFileSync(modName+".default.ini", "Postal2.ini")
+
+    let initxt = fs.readFileSync(modName+".default.ini").toString()
+    initxt = initxt.replace(/\.\.\\\.\.\\/g, "..\\")
+    fs.writeFileSync("SjoboMod.ini", initxt)
 
 }
 
