@@ -44,7 +44,7 @@ function Main() {
 
     let initxt = fs.readFileSync(modName+".default.ini").toString()
     initxt = initxt.replace(/\.\.\\\.\.\\/g, "..\\")
-    fs.writeFileSync("SjoboMod.ini", initxt)
+    fs.writeFileSync(modName+".ini", initxt)
 
 }
 

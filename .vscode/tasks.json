@@ -5,13 +5,6 @@
             "label": "POSTed (Unreal Editor)",
             "type": "process",
             "command": "UnrealEd.exe",
-            // "windows": {
-            //     "options": {
-            //         "shell": {
-            //             "executable": "cmd.exe"
-            //         }
-            //     }
-            // },
             "args": [
             ],
             "options": {
@@ -26,13 +19,6 @@
             "label": "Make (ucc.exe)",
             "type": "process",
             "command": "ucc.exe",
-            // "windows": {
-            //     "options": {
-            //         "shell": {
-            //             "executable": "cmd.exe"
-            //         }
-            //     }
-            // },
             "args": [
                 "make"
             ],
