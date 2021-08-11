@@ -47,7 +47,7 @@ it should suggest or automatically open the workspace saved in the **.vscode** f
 It's needed for the Intellisense (auto completion to work)
 
 It's also highly recommended that you install the recommended VSCode extensions provided with the Workspace, 
-it will aid with auto completition and working with this repository in general.
+it will aid with auto completion and working with this repository in general.
 
 ### First time
 If you just cloned this repository and haven't done this step before, then you should run the "**Setup**" VSCode task,
