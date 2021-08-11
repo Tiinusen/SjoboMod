@@ -104,30 +104,6 @@
             }
         },
         {
-            "label": "Clean",
-            "type": "process",
-            "command": "echo",
-            "args": [
-                "Repository has now been cleaned of non repository files and parent has been cleared of Postal 2 UnrealScript Source"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "problemMatcher":"$node-sass",
-            "presentation": {
-                "echo": false,
-                "reveal": "always",
-                "focus": false,
-                "panel": "shared",
-                "showReuseMessage": false,
-                "clear": true
-            },
-            "dependsOn": [
-                "Clean (deletes non repository files from repository folder)",
-                "Clean (deletes POSTAL 2 UnrealScript Source from parent)"
-            ]
-        },
-        {
             "label": "Clean (deletes non repository files from repository folder)",
             "type": "process",
             "command": "node",
@@ -149,7 +125,7 @@
             }
         },
         {
-            "label": "Clean (deletes POSTAL 2 UnrealScript Source from parent)",
+            "label": "Clean (deletes POSTAL 2 UnrealScript Source from parent and non repository files)",
             "type": "process",
             "command": "clean.bat",
             "args": [
@@ -165,7 +141,10 @@
                 "panel": "shared",
                 "showReuseMessage": false,
                 "clear": true
-            }
+            },
+            "dependsOn": [
+                "Clean (deletes non repository files from repository folder)"
+            ]
         }
     ]
 }
