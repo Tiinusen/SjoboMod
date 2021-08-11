@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"name": "Source (Repository and Mod)",
+			"path": ".."
+		},
+		{
+			"name": "Parent (Index and Reference)",
+			"path": "..\\.."
+		}
+	],
+	"settings": {},
+	"extensions": {
+		"recommendations": [
+			"pkief.material-icon-theme",
+			"eliotvu.uc"
+		]
+	}
+}

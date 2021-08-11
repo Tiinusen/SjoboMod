@@ -1,0 +1,108 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "POSTed (Unreal Editor)",
+            "type": "process",
+            "command": "ucc.exe",
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "cmd.exe"
+                    }
+                }
+            },
+            "args": [
+                "make"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}\\System"
+            },
+            "problemMatcher": [],
+            "dependsOn": [
+                "Make (ucc.exe)"
+            ]
+        },
+        {
+            "label": "Make (ucc.exe)",
+            "type": "process",
+            "command": "ucc.exe",
+            "windows": {
+                "options": {
+                    "shell": {
+                        "executable": "cmd.exe"
+                    }
+                }
+            },
+            "args": [
+                "make"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}\\System"
+            },
+            "problemMatcher": [],
+            "group": "build",
+            "dependsOn": [
+                "Setup (copy and modify)",
+                "Delete (compiled SjoboMod.u)"
+            ]
+        },
+        {
+            "label": "Delete (compiled SjoboMod.u)",
+            "type": "process",
+            "command": "cmd.exe",
+            "args": [
+                "/C",
+                "@del",
+                ".\\SjoboMod.u",
+                ">nul",
+                "2>&1"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}\\System"
+            },
+            "problemMatcher": [
+                {
+                    "owner": "ignore",
+                    "fileLocation": "absolute",
+                    "pattern": {
+                        "regexp": "\\[ignore\\] (.*)\\((\\d*),(\\d*)\\): (error|warning) (.*)",
+                        "file": 1,
+                        "line": 2,
+                        "column": 3,
+                        "severity": 4,
+                        "message": 5
+                    }
+                }
+            ],
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            }
+        },
+        {
+            "label": "Setup (copy and modify)",
+            "type": "process",
+            "command": "node",
+            "args": [
+                "setup.js"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/.vscode"
+            },
+            "problemMatcher":"$node-sass",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            }
+        }
+    ]
+}
