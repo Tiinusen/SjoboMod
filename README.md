@@ -86,6 +86,7 @@ TBD, Haven't gotten to it yet, read up some on it but I have no clear picture.
 - [Postal 2 Source Code on Github](https://github.com/Kizoky/p2unrealscript)
 - [Unreal Script Documentation](https://beyondunrealwiki.github.io/)
 - [Some OK tutorials to get started](https://www.moddb.com/games/postal-2/tutorials)
+- [Postal 2 Modding on Postal Fandom](https://postal.fandom.com/wiki/POSTAL2_Modding)
 
 ## Troubleshooting
 Here's a troubleshooting section that I expect to grow.
