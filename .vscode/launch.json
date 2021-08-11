@@ -5,8 +5,8 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Postal 2",
-            "cwd": "${workspaceFolder}/.vscode",
-            "program": "launch.js",
+            "cwd": "${workspaceFolder}",
+            "program": ".vscode/launch.js",
             "args": [
                 "Postal2",
                 "Elefanten"
@@ -17,11 +17,10 @@
             "type": "node",
             "request": "launch",
             "name": "Launch POSTed",
-            "cwd": "${workspaceFolder}/.vscode",
-            "program": "launch.js",
+            "cwd": "${workspaceFolder}",
+            "program": ".vscode/launch.js",
             "args": [
-                "POSTed",
-                "Elefanten"
+                "POSTed"
             ],
             "preLaunchTask": "Make (ucc.exe)"
         }

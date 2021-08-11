@@ -4,14 +4,14 @@
         {
             "label": "POSTed (Unreal Editor)",
             "type": "process",
-            "command": "ucc.exe",
-            "windows": {
-                "options": {
-                    "shell": {
-                        "executable": "cmd.exe"
-                    }
-                }
-            },
+            "command": "UnrealEd.exe",
+            // "windows": {
+            //     "options": {
+            //         "shell": {
+            //             "executable": "cmd.exe"
+            //         }
+            //     }
+            // },
             "args": [
                 "make"
             ],
@@ -27,18 +27,36 @@
             "label": "Make (ucc.exe)",
             "type": "process",
             "command": "ucc.exe",
-            "windows": {
-                "options": {
-                    "shell": {
-                        "executable": "cmd.exe"
-                    }
-                }
-            },
+            // "windows": {
+            //     "options": {
+            //         "shell": {
+            //             "executable": "cmd.exe"
+            //         }
+            //     }
+            // },
             "args": [
                 "make"
             ],
             "options": {
                 "cwd": "${workspaceFolder}\\System"
+            },
+            "problemMatcher": [],
+            "group": "build",
+            "dependsOn": [
+                "Setup (copy and modify)",
+                "Delete (compiled SjoboMod.u)"
+            ]
+        },
+        {
+            "label": "Unpack (Unzips the Postal 2 UnrealScript Source into Parent folder)",
+            "type": "process",
+            "command": "tar",
+            "args": [
+                "-xf",
+                "POSTAL 2 UnrealScript Source (2020-12-05).zip"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}\\.."
             },
             "problemMatcher": [],
             "group": "build",
@@ -89,10 +107,31 @@
             "type": "process",
             "command": "node",
             "args": [
-                "setup.js"
+                ".vscode/setup.js"
             ],
             "options": {
-                "cwd": "${workspaceFolder}/.vscode"
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher":"$node-sass",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            }
+        },
+        {
+            "label": "Clean (deletes non repository files from repository folder)",
+            "type": "process",
+            "command": "node",
+            "args": [
+                ".vscode/setup.js",
+                "--clean"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
             },
             "problemMatcher":"$node-sass",
             "presentation": {

@@ -3,7 +3,7 @@
 This is my attempt to make some sort of a game/mod for Postal 2, 
 I have no idea what I will be able to archive here but let's wing it, I have some ideas. 
 
-Just like it looked like they did when they developed th original game.
+Just like it looked like they did when they developed their original game.
 
 - [Sjöbo Mod](#sjöbo-mod)
   - [Requirements](#requirements)

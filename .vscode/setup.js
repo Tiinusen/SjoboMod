@@ -1,13 +1,46 @@
 const fs = require('fs')
 const path = require('path')
 
+let modName = path.basename(process.cwd())
+
 function Main() {
-    process.chdir("../System")
+    process.chdir("System")
+    let args = process.argv
+    args.shift()
+    args.shift()
+
+    if(!fs.existsSync("../../Postal2Game")){
+        console.error("You have not yet unpacked the POSTAL 2 UnrealScript Source\nDo it manually or use VSCode Task \"Unpack\"")
+        process.exit(1)
+    }
+
+    if(args.length >= 1 && args[0] == "--clean"){
+        deleteFilesFromDirectory("EditorRes")
+        deleteFilesFromDirectory(".", [
+            /\.exe$/,
+            /\.dll$/,
+            /\.ini$/,
+            /\.int$/,
+            /\.u$/,
+            /\.log$/,
+            /\.txt$/,
+            /\.bmp$/
+        ])
+        return
+    }
 
     copyFilesFromDirectoryToDirectory("../../System/EditorRes", "EditorRes")
-
-
-
+    copyFilesFromDirectoryToDirectory("../../System", ".", [
+        /\.exe$/,
+        /\.dll$/,
+        /\.u$/,
+        /\.ini$/,
+        /\.int$/,
+        /\.log$/,
+        /\.txt$/,
+        /\.bmp$/
+    ])
+    fs.copyFileSync(modName+".ini", "Postal2.ini")
 
 }
 
@@ -50,6 +83,40 @@ function copyFilesFromDirectoryToDirectory(source, destination = "", includeRege
     });
 }
 
+function deleteFilesFromDirectory(source, includeRegexps = []) {
+    if (!fs.existsSync(source)) {
+        return
+    }
+    files = fs.readdirSync(source)
+    files.forEach((file) => {
+        var sourcePath = path.resolve(source, file)
+
+        if(file.indexOf(modName) !== -1 || file == "Postal2.ini"){
+            return
+        }
+
+        let stat = fs.statSync(sourcePath)
+        if(stat.isDirectory()){
+            return
+        }
+
+        if(includeRegexps !== null && includeRegexps.length > 0){
+            let matched = false
+            includeRegexps.forEach((regexp) => {
+                if(matched || regexp.test(file)){
+                    matched = true
+                }
+            })
+            if(!matched){
+                return
+            }
+        }
+        fs.unlinkSync(sourcePath)
+    });
+    if(includeRegexps === null || includeRegexps.length == 0){
+        fs.rmdirSync(source)
+    }
+}
+
 
 Main()
-process.exit(1)
