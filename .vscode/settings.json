@@ -1,2 +1,24 @@
 {
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        // Copied files from parent, no interest in seeing them
+        "System/*.dll": true,
+        // .int
+        "System/[^S]*.int": true,
+        "System/S[!j]*.int": true,
+        //"System/Se*.int": true,
+        // .ini
+        "System/[^SP]*.ini": true,
+        "System/S[!j]*.ini": true,
+        "System/*.u": true,
+        "System/*.exe": true,
+        "System/*.bmp": true,
+        "System/*.txt": true,
+        "System/EditorRes": true
+    }
+   
 }
