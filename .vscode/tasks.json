@@ -59,11 +59,7 @@
                 "cwd": "${workspaceFolder}\\.."
             },
             "problemMatcher": [],
-            "group": "build",
-            "dependsOn": [
-                "Setup (copy and modify)",
-                "Delete (compiled SjoboMod.u)"
-            ]
+            "group": "build"
         },
         {
             "label": "Delete (compiled SjoboMod.u)",
@@ -123,6 +119,30 @@
             }
         },
         {
+            "label": "Clean",
+            "type": "process",
+            "command": "echo",
+            "args": [
+                "Repository has now been cleaned of non repository files and parent has been cleared of Postal 2 UnrealScript Source"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher":"$node-sass",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "dependsOn": [
+                "Clean (deletes non repository files from repository folder)",
+                "Clean (deletes POSTAL 2 UnrealScript Source from parent)"
+            ]
+        },
+        {
             "label": "Clean (deletes non repository files from repository folder)",
             "type": "process",
             "command": "node",
@@ -132,6 +152,25 @@
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher":"$node-sass",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            }
+        },
+        {
+            "label": "Clean (deletes POSTAL 2 UnrealScript Source from parent)",
+            "type": "process",
+            "command": "clean.bat",
+            "args": [
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/.vscode"
             },
             "problemMatcher":"$node-sass",
             "presentation": {

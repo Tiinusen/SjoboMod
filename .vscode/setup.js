@@ -33,9 +33,9 @@ function Main() {
     copyFilesFromDirectoryToDirectory("../../System", ".", [
         /\.exe$/,
         /\.dll$/,
-        /\.u$/,
         /\.ini$/,
         /\.int$/,
+        /\.u$/,
         /\.log$/,
         /\.txt$/,
         /\.bmp$/
