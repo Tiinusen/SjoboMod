@@ -16,6 +16,17 @@
             ]
         },
         {
+            "label": "POSTed (Unreal Editor) (Without Make)",
+            "type": "process",
+            "command": "UnrealEd.exe",
+            "args": [
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}\\System"
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "Make (ucc.exe)",
             "type": "process",
             "command": "ucc.exe",

@@ -1,23 +1,92 @@
 class MainHUD extends P2HUD;
 
+var string TheMessage;
+var float MessageExpires;
+var bool showMessage;
+var MainGameInfo mgi;
+var Player player;
+
+const MessageFadeOutTime = 2;
+
+///////////////////////////////////////////////////////////////////////////////
+// PostBeginPlay
+///////////////////////////////////////////////////////////////////////////////
+simulated function PostBeginPlay() {
+	Super.PostBeginPlay();
+
+    mgi = MainGameInfo(Level.Game);
+	player = Player(Owner);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// DrawHUD
+///////////////////////////////////////////////////////////////////////////////
 simulated function DrawHUD( Canvas canvas ){
     Super.DrawHUD(canvas);
     if(!bHideHUD){
         DrawTimeOfDay(canvas);
+        if(showMessage){
+            DrawMessage(canvas);
+        }
     }
 }
 
+//
+// DisplayMessage displays a message for provided amount of seconds or default for 5 seconds
+//
+function DisplayMessage(string message, optional int seconds)
+{
+    if(message == ""){
+        return;
+    }
+    if(seconds <= 1){
+        seconds = 5;
+    }
+    TheMessage = message;
+    MessageExpires = mgi.TheGameState.TimeElapsed + seconds;
+    showMessage = true;
+}
+
+//
+// Draws fading out message on screen
+//
+simulated function DrawMessage( canvas Canvas )
+{
+    local float XL, YL, X, Y, fadeOut;
+
+    if(MessageExpires - mgi.TheGameState.TimeElapsed <= 0.1){
+        showMessage = false;
+        TheMessage = "";
+        return;
+    }
+
+    fadeOut = 1;
+    if(MessageExpires - mgi.TheGameState.TimeElapsed <= MessageFadeOutTime){
+        fadeOut = ((MessageExpires - mgi.TheGameState.TimeElapsed) / MessageFadeOutTime);
+    }
+
+    Canvas.bCenter = false;
+    Canvas.DrawColor = RedColor;
+    Canvas.DrawColor = Canvas.DrawColor * FadeOut;
+    Canvas.Style = ERenderStyle.STY_Normal;
+	
+	Canvas.Font = MyFont.GetFont(2, false, CanvasWidth);
+	Canvas.StrLen(TheMessage, XL, YL);
+    X = CanvasWidth/2 - XL/2;
+    Y = CanvasHeight/4 - YL/2;
+	Canvas.SetPos(X, Y);
+    MyFont.DrawText(Canvas, TheMessage, fadeOut);
+}
+
+//
+// Draws Time of Day on HUD
+//
 simulated function DrawTimeOfDay( canvas Canvas )
 {
 	local float XL, YL, X, Y;
-	local float FadeOut;
     local string time;
-    local MainGameInfo mgi;
     local int days, remainers, hours, minutes;
     local string padHours, padMinutes, text;
-
-    mgi = MainGameInfo(Level.Game);
-
 
     days = mgi.TheGameState.TimeElapsed / mgi.DayLengthInSeconds;
     //log(mgi.TheGameState.TimeElapsed@" / "@mgi.DayLengthInSeconds@" = "@days);
@@ -26,7 +95,7 @@ simulated function DrawTimeOfDay( canvas Canvas )
     hours = minutes / 60; 
     minutes -= hours * 60;
     if(hours < 10){
-        padHours = "0";
+        padHours = " ";
     }
     if(minutes < 10){
         padMinutes = "0";
@@ -43,5 +112,5 @@ simulated function DrawTimeOfDay( canvas Canvas )
     X = CanvasWidth - XL-5;
     Y = 5;
 	Canvas.SetPos(X, Y);
-    MyFont.DrawText(Canvas, text, FadeOut);
+    MyFont.DrawText(Canvas, text, 0);
 }

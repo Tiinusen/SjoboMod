@@ -5,6 +5,13 @@ var int Salary;
 var NPC NPC;
 var Player InterestPlayer;
 
+// LandlordClipboard Vars / Consts
+var float WaitTimeoutExpire;
+var LandlordClipboardWeapon LandlordClipboard;
+var bool HasGivenAttention;
+
+const WaitTimeout = 20;
+
 // Gets called once when the NPC reaches his first Thinking state
 function Setup()
 {
@@ -53,7 +60,6 @@ function Inventory AddItem(class<Inventory> itemClass){
     local Inventory item;
     item = MyPawn.CreateInventoryByClass(itemClass);
     if(item == None){
-        log("#### Failed to create inventory by class");
         return None;
     }
     return item;
@@ -83,40 +89,74 @@ state Thinking {
 
 state ReactToLandlordSpeaking
 {
+
 	function BeginState()
 	{
+        
 		PrintThisState();
 		MyPawn.StopAcc();
 		Focus = InterestPawn;
+        HasGivenAttention = false;
         InterestPlayer = Player(InterestPawn.Controller);
+        WaitTimeoutExpire = Level.TimeSeconds + WaitTimeout;
+        LandlordClipboard = LandlordClipboardWeapon(InterestPlayer.GetItem(class'SjoboMod.LandlordClipboardWeapon'));
 	}
-Begin:
-	// Stare at the result a minute
-	Sleep(2.0 - MyPawn.Reactivity);
 
-    if(NPC.NPCHomeTag == ""){ // I have no home
-        log("#### I have no home");
-        // Consider renting an apartment
-        if(Salary < 20){
-            PrintDialogue("Can't afford one");
-            if(HasBeenBotheredRegardingRenting){
-                NPC.SetMood(MOOD_Angry, 1.0);
-                Sleep(Say(MyPawn.myDialog.lDefiant, true));
-            }else{
-                Sleep(Say(MyPawn.myDialog.lDontAcceptDeal, true));
-            }
-            HasBeenBotheredRegardingRenting = true;
-            GotoStateSave('Thinking');
-        }else{
-            PrintDialogue("Yes please, show me my apartment");
-            // No idea
-            Sleep(Say(MyPawn.myDialog.lYes, true));
-            Focus = None;
-            GotoStateSave('FollowLandlordToPotentialHousing');
+    function EndState()
+	{
+		Super.EndState();
+        if(LandlordClipboard.Target == MyPawn){
+            LandlordClipboard.Target = None;
+            LandlordClipboard.SetClipboardState(0);
         }
-    }else{ // I have a home
+        InterestPlayer = None;
+        InterestPawn = None;
+        LandlordClipboard = None;
+	}
 
+Begin:
+    // Stare at the result a minute
+    Sleep(2.0 - MyPawn.Reactivity);
+    if(WaitTimeoutExpire < Level.TimeSeconds || LandlordClipboard.Target != MyPawn || VSize(InterestPawn.Location - MyPawn.Location) > 600){
+        NPC.SetMood(MOOD_Angry, 1.0);
+        Sleep(Say(MyPawn.myDialog.lDefiant, true));
+        if(MyNextState == 'None')
+            SetNextState('Thinking');
+    }else if(!HasGivenAttention){
+        HasGivenAttention = true;
+        Sleep(Say(MyPawn.myDialog.lGreeting, true));
+        LandlordClipboard.TargetGivesAttention();
     }
+    if(MyNextState == 'None')
+        SetNextState('ReactToLandlordSpeaking');
+    GoToNextState();
+    
+    
+	
+
+    // if(NPC.NPCHomeTag == ""){ // I have no home
+    //     log("#### I have no home");
+    //     // Consider renting an apartment
+    //     if(Salary < 20){
+    //         PrintDialogue("Can't afford one");
+    //         if(HasBeenBotheredRegardingRenting){
+    //             NPC.SetMood(MOOD_Angry, 1.0);
+    //             Sleep(Say(MyPawn.myDialog.lDefiant, true));
+    //         }else{
+    //             Sleep(Say(MyPawn.myDialog.lDontAcceptDeal, true));
+    //         }
+    //         HasBeenBotheredRegardingRenting = true;
+    //         GotoStateSave('Thinking');
+    //     }else{
+    //         PrintDialogue("Yes please, show me my apartment");
+    //         // No idea
+    //         Sleep(Say(MyPawn.myDialog.lYes, true));
+    //         Focus = None;
+    //         GotoStateSave('FollowLandlordToPotentialHousing');
+    //     }
+    // }else{ // I have a home
+
+    // }
 }
 
 state FollowLandlordToPotentialHousing
