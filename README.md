@@ -73,6 +73,10 @@ I will provide some [links](#documentation) that might aid in understanding how 
 #### Map Editing (POSTed)
 Run launch task "**Launch POSTed**" and it will start POSTed (Unreal Editor)
 
+Keep in mind that the editor is laggy as hell (atleast for me on an High End PC) and it likes to crash, so save often.
+
+It usually crashes on errors, so if it crashes, try one more time doing what you did, if it crashes again, find alternative way around it.
+
 
 #### Testing (Postal 2)
 Run launch task "**Launch Postal 2**" and it will start Postal 2 in windowed mode with a log window deattached.
