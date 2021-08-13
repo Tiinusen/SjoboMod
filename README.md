@@ -18,6 +18,7 @@ Just like it looked like they did when they developed their original game.
   - [Documentation](#documentation)
   - [Troubleshooting](#troubleshooting)
     - [Errors that aren't errors](#errors-that-arent-errors)
+    - [I know that variable/function/class exists !](#i-know-that-variablefunctionclass-exists-)
 
 
 ## Requirements
@@ -100,3 +101,10 @@ While you code you might stumble upon variable names and properties of object be
 I haven't figured out how to solve it yet, but once you start recognize them one can learn to ignore them.
 
 The compiler is the ultimate truth, even tho that truth might be very small and not so describing, but it's most likely because of what you did, so undo.
+
+### I know that variable/function/class exists !
+The Intellisense sometimes shows something as non existing, but that is mostly due to Parent directory not being indexed.
+
+The only way I've found to solve this is to **CTRL + Left Click** on then name and hope that VSCode finds it after some slow indexing, and if that fails
+I usually ends up searching for the file and opens it in the editor, that forces VSCode to index the base class, and usually then it also indexes the
+other classes aswell, but yeah this quite annoying.
