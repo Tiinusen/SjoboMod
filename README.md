@@ -96,6 +96,9 @@ TBD, and will also create a template repository once I've reached a good finish 
 ## Troubleshooting
 Here's a troubleshooting section that I expect to grow.
 
+### I keep exploding when I start the map !
+It's because you forgot to "build all" in the POSTed (Unreal Editor), do that and save and try again.
+
 ### Errors that aren't errors
 While you code you might stumble upon variable names and properties of object being red marked by the language service,
 I haven't figured out how to solve it yet, but once you start recognize them one can learn to ignore them.
