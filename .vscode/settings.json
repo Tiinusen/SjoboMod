@@ -15,6 +15,7 @@
         "System/[^SP]*.ini": true,
         "System/S[!j]*.ini": true,
         "System/[!S]*.u": true,
+        "System/S[!j]*.u": true,
         "System/*.exe": true,
         "System/*.bmp": true,
         "System/*.txt": true,
