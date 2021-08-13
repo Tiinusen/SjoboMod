@@ -91,8 +91,6 @@ state ReactToLandlordSpeaking
 
 	function BeginState()
 	{
-        
-		PrintThisState();
 		MyPawn.StopAcc();
 
         InterestPlayerController = PlayerLandlordController(InterestPawn.Controller);
@@ -106,13 +104,13 @@ state ReactToLandlordSpeaking
     function EndState()
 	{
 		Super.EndState();
-        if(LandlordClipboard.Target == MyPawn){
+        if(LandlordClipboard.Target == MyPawn && MyNextState == 'Thinking'){
             LandlordClipboard.Target = None;
-            LandlordClipboard.SetClipboardState(0);
+            LandlordClipboard.SetClipboardState(LCB_NONE_SELECTED);
+            InterestPlayerController = None;
+            InterestPawn = None;
+            LandlordClipboard = None;
         }
-        InterestPlayerController = None;
-        InterestPawn = None;
-        LandlordClipboard = None;
 	}
 
 Begin:

@@ -5,25 +5,28 @@ class LandlordClipboardWeapon extends WeaponBase;
 
 
 //#############################################################################
+// Enums
+//#############################################################################
+enum LandlordClipboardState
+{
+	LCB_NONE_SELECTED,
+	LCB_CANCEL,
+	LCB_OFFER_HOUSING,
+	LCB_OFFER_WORK,
+	LCB_SHOW_HOUSING,
+	LCB_SHOW_WORK
+};
+
+
+//#############################################################################
 // Properties
 //#############################################################################
 var Texture ClipboardTextures[6];	// Textures of clipboard
-var int ClipboardState;
+var LandlordClipboardState ClipboardState;
 var Texture NameTextures[3];		// Textures of names to be written on the clipboard
 var Sound   WritingSound;			// Sound for when things are signed
 var NPC Target;
 var NPCController TargetController;	
-
-
-//#############################################################################
-// Internal Constants
-//#############################################################################
-const LCB_NONE_SELECTED = 0;
-const LCB_CANCEL = 1;
-const LCB_OFFER_HOUSING = 2;
-const LCB_OFFER_WORK = 3;
-const LCB_SHOW_HOUSING = 4;
-const LCB_SHOW_WORK = 5;
 
 
 //#############################################################################
@@ -123,7 +126,19 @@ function TraceFireOfferHousing(PlayerController player)
 ///////////////////////////////////////////////////////////////////////////////
 function TraceFireShowHousing(PlayerController player)
 {
-	
+	local HomeNode selectedHomeNode, homeNode;
+	local float lowestDistance;
+
+	// Scan for the closest HomeNode within 600 units
+	// foreach DynamicActors(class'HomeNode', pawn){
+	// 	homeNode = HomeNode(pawn);
+	// 	if(VSize(player.Location - homeNode.Location) > 300){
+	// 		continue;
+	// 	}
+	// 	if(selectedHomeNode != None){
+
+	// 	}
+	// }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -202,16 +217,16 @@ function TargetGivesAttention()
 ///////////////////////////////////////////////////////////////////////////////
 // SetClipboardState - Sets the skin and state of the clipboard
 ///////////////////////////////////////////////////////////////////////////////
-function SetClipboardState(int newState)
+function SetClipboardState(LandlordClipboardState newState)
 {
 	ClipboardState = newState;
-	Skins[1] = ClipboardTextures[ClipboardState];
+	Skins[1] = ClipboardTextures[int(ClipboardState)];
 }
+
 
 //#############################################################################
 // States
 //#############################################################################
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // NormalFire - TBD
