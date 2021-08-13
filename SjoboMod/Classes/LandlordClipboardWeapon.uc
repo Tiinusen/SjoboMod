@@ -128,13 +128,13 @@ simulated function AltFire( float Value )
 ///////////////////////////////////////////////////////////////////////////////
 function AltFireNoneSelected(PlayerLandlordController player)
 {
-	local MainHUD hud;
-	hud = MainHUD(player.MyHUD);
+	local PlayerLandlordHUD hud;
+	hud = PlayerLandlordHUD(player.MyHUD);
 	hud.DisplayMessage("You need to point at someone first");
 }
 
 //#############################################################################
-// Events / External Invoked Actions
+// Events / Externally Invoked Actions
 //#############################################################################
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -112,5 +112,5 @@ defaultproperties
 	PlayerControllerClassName="SjoboMod.PlayerLandlordController"
 	DefaultPlayerClassName="GameTypes.AWPostalDude"
 
-	HUDType="SjoboMod.MainHUD"
+	HUDType="SjoboMod.PlayerLandlordHUD"
 }
