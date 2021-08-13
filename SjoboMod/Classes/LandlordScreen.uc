@@ -1,5 +1,5 @@
 //#############################################################################
-// TBD, I just put it here to figure it out later if needed.
+// TBD, I just put it here to figure it out later if needed
 //#############################################################################
 class LandlordScreen extends P2Screen;
 
@@ -48,6 +48,7 @@ var Color	YellowC;
 var Color	GreenC;
 
 var bool bTest;
+
 
 //#############################################################################
 // Constants

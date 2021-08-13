@@ -25,6 +25,16 @@
 		],
 		"description": "Creates a section comment to keep the code sections more visibly divided"
 	},
+	"Normal comment": {
+		"scope": "unrealscript",
+		"prefix": "comment",
+		"body": [
+			"///////////////////////////////////////////////////////////////////////////////",
+			"// ${1:Comment - Optional Description}",
+			"///////////////////////////////////////////////////////////////////////////////"
+		],
+		"description": "Creates a normal comment to keep the code sections more visibly divided"
+	},
 	"State": {
 		"scope": "unrealscript",
 		"prefix": "state",

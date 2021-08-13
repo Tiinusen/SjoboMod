@@ -1,7 +1,8 @@
 //#############################################################################
-// NPC Controller - Contains controller logic
+// NPC Controller - Contains NPC controller logic
 //#############################################################################
 class NPCController extends NPCControllerBase;
+
 
 //#############################################################################
 // Properties
@@ -16,10 +17,12 @@ var float WaitTimeoutExpire;
 var LandlordClipboardWeapon LandlordClipboard;
 var bool HasGivenAttention;
 
+
 //#############################################################################
 // Constants
 //#############################################################################
 const WaitTimeout = 20;
+
 
 //#############################################################################
 // Events
@@ -61,6 +64,7 @@ function AddSalaryToBankAccount(){
     MoneyInv(MustGetOrCreateItem(class'MoneyInv')).Amount += Salary;
 }
 
+
 //#############################################################################
 // States
 //#############################################################################
@@ -80,7 +84,7 @@ state Thinking {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// ReactToLandlordSpeaking - Invoked on clipboard action select dude
+// ReactToLandlordSpeaking - Invoked on Select Dude action
 ///////////////////////////////////////////////////////////////////////////////
 state ReactToLandlordSpeaking
 {
@@ -90,11 +94,13 @@ state ReactToLandlordSpeaking
         
 		PrintThisState();
 		MyPawn.StopAcc();
-		Focus = InterestPawn;
-        HasGivenAttention = false;
+
         InterestPlayerController = PlayerLandlordController(InterestPawn.Controller);
         WaitTimeoutExpire = Level.TimeSeconds + WaitTimeout;
         LandlordClipboard = LandlordClipboardWeapon(InterestPlayerController.GetItem(class'SjoboMod.LandlordClipboardWeapon'));
+
+        Focus = InterestPawn;
+        HasGivenAttention = false;
 	}
 
     function EndState()
@@ -111,7 +117,7 @@ state ReactToLandlordSpeaking
 
 Begin:
     Sleep(2.0 - MyPawn.Reactivity);
-    if(WaitTimeoutExpire < Level.TimeSeconds || LandlordClipboard.Target != MyPawn || VSize(InterestPawn.Location - MyPawn.Location) > 600){
+    if(WaitTimeoutExpire < Level.TimeSeconds || LandlordClipboard.Target != MyPawn || VSize(InterestPawn.Location - MyPawn.Location) > 300){
         NPC.SetMood(MOOD_Angry, 1.0);
         Sleep(Say(MyPawn.myDialog.lDefiant, true));
         if(MyNextState == 'None')
@@ -154,31 +160,46 @@ Begin:
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// FollowLandlordToPotentialHousing - Invoked on clipboard action offer housing
+// FollowLandlordToPotentialHousing - Invoked on Offer Housing action
 ///////////////////////////////////////////////////////////////////////////////
 state FollowLandlordToPotentialHousing
 {
     function BeginState()
 	{
+        
 		PrintThisState();
-        log("TEST TEST TEST");
+		MyPawn.StopAcc();
+
+        InterestPlayerController = PlayerLandlordController(InterestPawn.Controller);
+        WaitTimeoutExpire = Level.TimeSeconds + WaitTimeout;
+        LandlordClipboard = LandlordClipboardWeapon(InterestPlayerController.GetItem(class'SjoboMod.LandlordClipboardWeapon'));
+
+        Focus = InterestPawn;
+        HasGivenAttention = false;
 	}
 
 Begin:
-    log("State loop entered");
     if(InterestPawn == None){
-        log("No more interest");
         GotoStateSave('Thinking');
-    }else if(VSize(InterestPawn.Location - MyPawn.Location) < 600){
-        MyPawn.StopAcc();
-        log("Arrived and waiting");
-        Sleep(1);
-        GotoStateSave('FollowLandlordToPotentialHousing');
-    }else{
-        log("Will walk to target");
+    }else if(VSize(InterestPawn.Location - MyPawn.Location) > 300){
         EndGoal = InterestPawn;
         SetNextState('FollowLandlordToPotentialHousing');
         GotoStateSave('WalkToTarget');
+    }else{
+        if(!HasGivenAttention){
+            HasGivenAttention = true;
+            Sleep(Say(MyPawn.myDialog.lYes, true));
+        }else if(WaitTimeoutExpire < Level.TimeSeconds || LandlordClipboard.Target != MyPawn){
+            NPC.SetMood(MOOD_Angry, 1.0);
+            Sleep(Say(MyPawn.myDialog.lDefiant, true));
+            if(MyNextState == 'None')
+                SetNextState('Thinking');
+        }
     }
-    log("State loop exited");
+
+    if(MyNextState == 'None'){
+        Sleep(2.0 - MyPawn.Reactivity);
+        SetNextState('FollowLandlordToPotentialHousing');
+    }
+    GoToNextState();
 }

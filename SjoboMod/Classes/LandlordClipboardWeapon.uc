@@ -3,6 +3,7 @@
 //#############################################################################
 class LandlordClipboardWeapon extends WeaponBase;
 
+
 //#############################################################################
 // Properties
 //#############################################################################
@@ -13,6 +14,7 @@ var Sound   WritingSound;			// Sound for when things are signed
 var NPC Target;
 var NPCController TargetController;	
 
+
 //#############################################################################
 // Internal Constants
 //#############################################################################
@@ -22,6 +24,7 @@ const LCB_OFFER_HOUSING = 2;
 const LCB_OFFER_WORK = 3;
 const LCB_SHOW_HOUSING = 4;
 const LCB_SHOW_WORK = 5;
+
 
 //#############################################################################
 // Events / User Invoked Actions
@@ -62,7 +65,7 @@ simulated function PlayIdleAnim()
 ///////////////////////////////////////////////////////////////////////////////
 // TraceFire - Overriden Normal Fire
 ///////////////////////////////////////////////////////////////////////////////
-function TraceFire( float Accuracy, float YOffset, float ZOffset )
+function TraceFire( float accuracy, float yOffset, float zOffset )
 {
 	local PlayerController player;
 	player = PlayerController(Instigator.Controller);
@@ -70,33 +73,67 @@ function TraceFire( float Accuracy, float YOffset, float ZOffset )
 	{
 		switch(ClipboardState){
 			case LCB_NONE_SELECTED:
-				if(Target != None){
-					if(!Target.IsInState('ReactToLandlordSpeaking')){
-						Target = None;
-					}
-					if(Target != None){
-						return;
-					}
-				}
-				Target = NPC(GetTarget(Accuracy,YOffset,ZOffset));
-				if(target != None){
-					TargetController = NPCController(target.Controller);
-					TargetController.InterestPawn = FPSPawn(Instigator);
-					TargetController.GotoStateSave('ReactToLandlordSpeaking');
-				}
+				TraceFireNoneSelected(player, accuracy, yOffset, zOffset);
 				break;
 			case LCB_OFFER_HOUSING:
-				SetClipboardState(LCB_SHOW_HOUSING);
-				TargetController.GotoStateSave('ReactToLandlordSpeaking');
+				TraceFireOfferHousing(player);
+				break;
+			case LCB_SHOW_HOUSING:
+				TraceFireShowHousing(player);
 				break;
 			case LCB_CANCEL:
-				Target = None;
-				SetClipboardState(LCB_NONE_SELECTED);
-				TargetController.GotoState('Thinking');
+				TraceFireCancel(player);
 				break;
 		}
-		
 	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// TraceFireNoneSelected - When dude has nobody selected
+///////////////////////////////////////////////////////////////////////////////
+function TraceFireNoneSelected(PlayerController player, float accuracy, float yOffset, float zOffset)
+{
+	if(Target != None){
+		if(!Target.IsInState('ReactToLandlordSpeaking')){
+			Target = None;
+		}
+		if(Target != None){
+			return;
+		}
+	}
+	Target = NPC(GetTarget(Accuracy,YOffset,ZOffset));
+	if(target != None){
+		TargetController = NPCController(target.Controller);
+		TargetController.InterestPawn = FPSPawn(Instigator);
+		TargetController.GotoStateSave('ReactToLandlordSpeaking');
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// TraceFireOfferHousing - When dude is offering living quarter
+///////////////////////////////////////////////////////////////////////////////
+function TraceFireOfferHousing(PlayerController player)
+{
+	SetClipboardState(LCB_SHOW_HOUSING);
+	TargetController.GotoStateSave('FollowLandlordToPotentialHousing');
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// TraceFireShowHousing - When dude is showing a living quarter
+///////////////////////////////////////////////////////////////////////////////
+function TraceFireShowHousing(PlayerController player)
+{
+	
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// TraceFireCancel - When dude no longer wants to interact with the POI
+///////////////////////////////////////////////////////////////////////////////
+function TraceFireCancel(PlayerController player)
+{
+	Target = None;
+	SetClipboardState(LCB_NONE_SELECTED);
+	TargetController.GotoState('Thinking');
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -106,6 +143,8 @@ simulated function AltFire( float Value )
 {
 	local PlayerLandlordController player;
 	player = PlayerLandlordController(Instigator.Controller);
+	if(player == None)
+		return;
 	
 	switch(ClipboardState){
 		case LCB_NONE_SELECTED:
@@ -133,12 +172,27 @@ function AltFireNoneSelected(PlayerLandlordController player)
 	hud.DisplayMessage("You need to point at someone first");
 }
 
+
 //#############################################################################
 // Events / Externally Invoked Actions
 //#############################################################################
 
+///////////////////////////////////////////////////////////////////////////////
+// Notify_PetitionSigned - When animation reach point of writing
+// invoked by NPCController->SignHousingContract
+///////////////////////////////////////////////////////////////////////////////
+simulated function Notify_PetitionSigned()
+{
+	local PlayerLandlordController player;
+	player = PlayerLandlordController(Instigator.Controller);
+	if(player == None)
+		return;
+
+	Instigator.PlayOwnedSound(WritingSound, SLOT_Misc, 1.0, , , WeaponFirePitchStart + (FRand()*WeaponFirePitchRand));
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////
-// TargetGivesAttention - Called once pointed dude has given the landlord it's attention
+// TargetGivesAttention - Called once pointed dude has given the landlord attention
 ////////////////////////////////////////////////////////////////////////////////////////
 function TargetGivesAttention()
 {
@@ -157,6 +211,7 @@ function SetClipboardState(int newState)
 //#############################################################################
 // States
 //#############################################################################
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // NormalFire - TBD
@@ -184,6 +239,7 @@ state NormalFire
 		Super.AnimEnd(Channel);
 	}
 }
+
 
 //#############################################################################
 // Default Properties
@@ -276,3 +332,35 @@ defaultproperties
 	ThirdPersonRelativeRotation=(Yaw=-1600,Roll=-16384)
 	PlayerViewOffset=(X=2,Y=0,Z=-8)
 	}
+
+
+//#############################################################################
+// Use Cases
+//#############################################################################
+
+///////////////////////////////////////////////////////////////////////////////
+// CASE: Offer Housing to an NPC in front of player
+///////////////////////////////////////////////////////////////////////////////
+// ────────────────────────────────────────┬───────────────────────────────────
+//                 LandlordClipboardWeapon │ NPCController
+// ────────────────────────────────────────┼───────────────────────────────────
+//                                         │
+//                 TraceFireNoneSelected ──┼─────────────┐
+//                                         │             │
+//                                         │             ▼
+//                 TraceFireOfferHousing ◄─┼── ReactToLandlordSpeaking
+//                           │             │
+//                           │             │
+//                           ├─────────────┼─► FollowLandlordToPotentialHousing
+//                           │             │        ▲        │          ▲
+//                           ▼             │        │        │          │
+//                  TraceFireShowHousing   │   WalkToTarget ◄┘          │
+//                           │             │                            │
+//                           │             │                         No │
+//                           └─────────────┼─► DecideOnHousing ─────────┘
+//                                         │         │
+//                                         │         │ Yes
+//                                         │         ▼
+//                 Notify_PetitionSigned ◄─┼── SignHousingContract
+//                                         │
+//                                         │

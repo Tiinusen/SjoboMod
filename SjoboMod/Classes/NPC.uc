@@ -5,6 +5,7 @@ class NPC extends Bystander
 	config
 	placeable;
 
+
 //#############################################################################
 // Configurable Properties
 //#############################################################################
@@ -13,6 +14,7 @@ var(NPC) int	NPCSalaryMax;		// What the maximum amount this NPC has in salary ev
 var(NPCTags) string	NPCHomeTag;		// (HomeNode.Events.Tag): Where the NPC lives
 var(NPCTags) string	NPCWorkTag;		// (HomeNode.Events.Tag): Where the NPC work
 var(NPCTags) string	NPCFamilyTag;	// Tag to inform which people are a family
+
 
 //#############################################################################
 // Default Properties
