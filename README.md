@@ -83,7 +83,7 @@ Run launch task "**Launch Postal 2**" and it will start Postal 2 in windowed mod
 
 
 ## Packaging (For Steam Workshop)
-TBD
+TBD, and will also create a template repository once I've reached a good finish on this one, for you to use in your own gamemode.
 
 
 ## Documentation
