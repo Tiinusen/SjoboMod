@@ -1,9 +1,12 @@
+//#############################################################################
+// TBD, I just put it here to figure it out later if needed.
+//#############################################################################
 class LandlordScreen extends P2Screen;
 
 
-///////////////////////////////////////////////////////////////////////////////
-// Vars, structs, consts, enums...
-///////////////////////////////////////////////////////////////////////////////
+//#############################################################################
+// Properties
+//#############################################################################
 var localized string PeopleKilled;
 var localized string CopsKilled;		
 var localized string PeopleRoasted;
@@ -44,6 +47,11 @@ var localized string CheatsNow;
 var Color	YellowC;
 var Color	GreenC;
 
+var bool bTest;
+
+//#############################################################################
+// Constants
+//#############################################################################
 const	LEFT_START_X	=	0.20; 
 const	RIGHT_START_X	=	0.7; 
 const	START_Y			=	0.06; 
@@ -51,10 +59,8 @@ const	INC_Y			=	0.03;
 const	REVEAL_TIME		=	0.1;
 const   FINAL_WAIT_TIME	=	2.0;
 
-var bool bTest;
-
 ///////////////////////////////////////////////////////////////////////////////
-// Call this to bring up the screen
+// Show - Call this to bring up the screen
 ///////////////////////////////////////////////////////////////////////////////
 function Show(String URLin)
 	{

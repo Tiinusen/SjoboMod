@@ -1,13 +1,30 @@
+//#############################################################################
+// Kinda like a only one existing top actor, usefully for main game logic
+//#############################################################################
 class MainGameInfo extends EmptyGameInfo;
 
-const DayLengthInSeconds = 1440; // 24*60
-
+//#############################################################################
+// Properties
+//#############################################################################
 var float NextDayWhenTimeElapsedPassed;
 
+//#############################################################################
+// Constants
+//#############################################################################
+const DayLengthInSeconds = 1440; // 24*60
+
+//#############################################################################
+// Events
+//#############################################################################
+
+///////////////////////////////////////////////////////////////////////////////
+// PostTravel - Called after player has been spawned into world
+///////////////////////////////////////////////////////////////////////////////
 event PostTravel(P2Pawn PlayerPawn)
 {
 	// Call Super first
 	Super.PostTravel(PlayerPawn);
+	// TBD
 	
 	// If this is a new game, and bAllWeapons is true, give the Dude all the weapons in the game.
 	if (!bLoadedSavedGame)
@@ -17,15 +34,16 @@ event PostTravel(P2Pawn PlayerPawn)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Called whenever an Pawn has been added to the level
+// AddPawn - Called whenever an Pawn has been added to the level
 ///////////////////////////////////////////////////////////////////////////////
 function AddPawn(Pawn AddMe)
 {
 	Super.AddPawn(AddMe);
+	// TBD
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Keep track of time elapsed for speed runs and whatnot
+// Tick - Keeps track of time and calls NewDay when a new day starts
 ///////////////////////////////////////////////////////////////////////////////
 event Tick(float Delta)
 {
@@ -36,7 +54,6 @@ event Tick(float Delta)
 
 	if(NextDayWhenTimeElapsedPassed <= TheGameState.TimeElapsed){
 		NextDayWhenTimeElapsedPassed = TheGameState.TimeElapsed + DayLengthInSeconds;
-		log("##### Next Day: "@TheGameState.TimeElapsed);
 		foreach DynamicActors(class'NPC', pawn){
 			controller = NPCController(pawn.Controller);
 			controller.NewDay();
@@ -44,6 +61,9 @@ event Tick(float Delta)
 	}
 }
 
+//#############################################################################
+// Default Properties
+//#############################################################################
 defaultproperties
 {
 
@@ -89,7 +109,7 @@ defaultproperties
 	// Game Description displayed in the Workshop Browser.
 	GameDescription="Small town in southern Sweden"
 
-	PlayerControllerClassName="SjoboMod.Player"
+	PlayerControllerClassName="SjoboMod.PlayerLandlordController"
 	DefaultPlayerClassName="GameTypes.AWPostalDude"
 
 	HUDType="SjoboMod.MainHUD"

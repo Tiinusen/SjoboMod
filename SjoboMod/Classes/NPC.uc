@@ -1,19 +1,22 @@
-//=============================================================================
-// NPC
-//
-// A living breathing NPC with a more reasonable living simulation
-//
-//=============================================================================
+//#############################################################################
+// NPC Pawn - Contains config and is placeable in the world via POSTed
+//#############################################################################
 class NPC extends Bystander
 	config
 	placeable;
 
-var(NPC) int	NPCSalaryMin;	// What the minimum amount this NPC has in salary every day
-var(NPC) int	NPCSalaryMax;	// What the maximum amount this NPC has in salary every day
-var(NPCTags) string	NPCHomeTag;	// (HomeNode.Events.Tag): Where the NPC lives
-var(NPCTags) string	NPCWorkTag;	// (HomeNode.Events.Tag): Where the NPC work
+//#############################################################################
+// Configurable Properties
+//#############################################################################
+var(NPC) int	NPCSalaryMin;		// What the minimum amount this NPC has in salary every day
+var(NPC) int	NPCSalaryMax;		// What the maximum amount this NPC has in salary every day
+var(NPCTags) string	NPCHomeTag;		// (HomeNode.Events.Tag): Where the NPC lives
+var(NPCTags) string	NPCWorkTag;		// (HomeNode.Events.Tag): Where the NPC work
 var(NPCTags) string	NPCFamilyTag;	// Tag to inform which people are a family
 
+//#############################################################################
+// Default Properties
+//#############################################################################
 defaultproperties
 	{
 	ActorID="NPC"

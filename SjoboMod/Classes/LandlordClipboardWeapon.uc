@@ -1,5 +1,11 @@
-class LandlordClipboardWeapon extends SMWeapon;
+//#############################################################################
+// Helps the Dude making or breaking his own landlord business
+//#############################################################################
+class LandlordClipboardWeapon extends WeaponBase;
 
+//#############################################################################
+// Properties
+//#############################################################################
 var Texture ClipboardTextures[6];	// Textures of clipboard
 var int ClipboardState;
 var Texture NameTextures[3];		// Textures of names to be written on the clipboard
@@ -7,6 +13,9 @@ var Sound   WritingSound;			// Sound for when things are signed
 var NPC Target;
 var NPCController TargetController;	
 
+//#############################################################################
+// Internal Constants
+//#############################################################################
 const LCB_NONE_SELECTED = 0;
 const LCB_CANCEL = 1;
 const LCB_OFFER_HOUSING = 2;
@@ -27,7 +36,7 @@ function PostBeginPlay()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Play firing animation/sound/etc
+// PlayFiring - Play firing animation/sound/etc
 ///////////////////////////////////////////////////////////////////////////////
 simulated function PlayFiring()
 {
@@ -35,7 +44,7 @@ simulated function PlayFiring()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Play anim to grab money
+// PlayAltFiring - Play anim to grab money
 ///////////////////////////////////////////////////////////////////////////////
 simulated function PlayAltFiring()
 {
@@ -43,7 +52,7 @@ simulated function PlayAltFiring()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// TBD
+// PlayIdleAnim - TBD
 ///////////////////////////////////////////////////////////////////////////////
 simulated function PlayIdleAnim()
 {
@@ -51,12 +60,12 @@ simulated function PlayIdleAnim()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Overriden Normal Fire
+// TraceFire - Overriden Normal Fire
 ///////////////////////////////////////////////////////////////////////////////
 function TraceFire( float Accuracy, float YOffset, float ZOffset )
 {
-	local Player player;
-	player = Player(Instigator.Controller);
+	local PlayerController player;
+	player = PlayerController(Instigator.Controller);
 	if(player != None)
 	{
 		switch(ClipboardState){
@@ -77,7 +86,8 @@ function TraceFire( float Accuracy, float YOffset, float ZOffset )
 				}
 				break;
 			case LCB_OFFER_HOUSING:
-				
+				SetClipboardState(LCB_SHOW_HOUSING);
+				TargetController.GotoStateSave('ReactToLandlordSpeaking');
 				break;
 			case LCB_CANCEL:
 				Target = None;
@@ -90,12 +100,12 @@ function TraceFire( float Accuracy, float YOffset, float ZOffset )
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Overriden Alternate Fire
+// AltFire - Overriden Alternate Fire
 ///////////////////////////////////////////////////////////////////////////////
 simulated function AltFire( float Value )
 {
-	local Player player;
-	player = Player(Instigator.Controller);
+	local PlayerLandlordController player;
+	player = PlayerLandlordController(Instigator.Controller);
 	
 	switch(ClipboardState){
 		case LCB_NONE_SELECTED:
@@ -113,7 +123,10 @@ simulated function AltFire( float Value )
 	}
 }
 
-function AltFireNoneSelected(Player player)
+///////////////////////////////////////////////////////////////////////////////
+// AltFireNoneSelected - When no dude is selected or pointed at
+///////////////////////////////////////////////////////////////////////////////
+function AltFireNoneSelected(PlayerLandlordController player)
 {
 	local MainHUD hud;
 	hud = MainHUD(player.MyHUD);
@@ -124,118 +137,29 @@ function AltFireNoneSelected(Player player)
 // Events / External Invoked Actions
 //#############################################################################
 
+///////////////////////////////////////////////////////////////////////////////
+// TargetGivesAttention - Called once pointed dude has given the landlord it's attention
+///////////////////////////////////////////////////////////////////////////////
 function TargetGivesAttention()
 {
 	SetClipboardState(LCB_OFFER_HOUSING);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Point at which a noise is played and signature is written to clipboard
+// SetClipboardState - Sets the skin and state of the clipboard
 ///////////////////////////////////////////////////////////////////////////////
-// simulated function Notify_PetitionSigned()
-// {
-// 	local P2Player p2p;
-// 	local byte StateChange;
-
-// 	if(Instigator != None)
-// 		p2p = P2Player(Instigator.Controller);
-		
-// 	//log(self@"notify signed"@p2p@p2p.interestpawn@PersonController(p2p.InterestPawn.Controller));
-
-// 	if(p2p != None
-// 		&& p2p.InterestPawn != None
-// 		&& PersonController(p2p.InterestPawn.Controller) != None)
-// 		PersonController(p2p.InterestPawn.Controller).CheckTalkerAttention(StateChange);
-// 	else
-// 		StateChange = 1;
-
-// 	if(StateChange == 0)
-// 	{
-// 		Instigator.PlayOwnedSound(WritingSound, SLOT_Misc, 1.0, , , WeaponFirePitchStart + (FRand()*WeaponFirePitchRand));
-// 		AskingState = CB_GOT_SIG;
-// 	}
-// 	else
-// 		AskingState = CB_WALKED_AWAY;
-// }
-
 function SetClipboardState(int newState)
 {
 	ClipboardState = newState;
 	Skins[1] = ClipboardTextures[ClipboardState];
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Check to invalidate the hands when you get added, so the clipboard is the
-// only hands option
-///////////////////////////////////////////////////////////////////////////////
-// function GiveTo(Pawn Other)
-// {
-// 	local P2Player p2p;
-
-// 	Super.GiveTo(Other);
-
-// 	// Check to invalidate the hands
-// 	if(P2Pawn(Other).bPlayer)
-// 	{
-// 		p2p = P2Player(Other.Controller);
-
-// 		if(P2AmmoInv(AmmoType) != None
-// 			&& P2AmmoInv(AmmoType).bReadyForUse)
-// 			p2p.SetWeaponUseability(false, p2p.MyPawn.HandsClass);
-// 	}
-// }
+//#############################################################################
+// States
+//#############################################################################
 
 ///////////////////////////////////////////////////////////////////////////////
-// Turn off the clipboard as being the basic hands
-///////////////////////////////////////////////////////////////////////////////
-// function SwapBackToHands()
-// {
-// 	local P2Player p2p;
-
-// 	if(!bSwappedBack)
-// 	{
-// 		bSwappedBack=true;
-
-// 		// Now remove it completely from your inventory.
-// 		if (P2AmmoInv(AmmoType).bReadyForUse
-// 			&& Instigator != None)
-// 		{
-// 			p2p = P2Player(Instigator.Controller);
-// 			p2p.SetWeaponUseability(true, p2p.MyPawn.HandsClass);
-// 			if(p2p != None)
-// 			{
-// 				// Turn clipboard off
-// 				//log(self@"Set Ready For Use False");
-// 				SetReadyForUse(false);
-// 				// Switch to them
-// 				//log(self@"Goto State DownWeapon");
-// 				GotoState('DownWeaponRemove');
-// 				//log(self@p2p@"Switch To Hands True");				
-// 				//p2p.SwitchToThisWeapon(class'HandsWeapon'.Default.InventoryGroup,class'HandsWeapon'.Default.GroupOffset);
-// 				//p2p.SwitchToHands(true);
-// 				//p2p.ConsoleCommand("SwitchToHands true");
-// 			}
-// 		}
-// 	}
-// }
-
-///////////////////////////////////////////////////////////////////////////////
-// Just to make sure (on day warps this can get called instead of the normal process)
-// always swap back to your hands
-///////////////////////////////////////////////////////////////////////////////
-// function Destroyed()
-// {
-// 	SwapBackToHands();
-
-// 	Super.Destroyed();
-// }
-
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-// Normal fire
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
+// NormalFire - TBD
 ///////////////////////////////////////////////////////////////////////////////
 state NormalFire
 {
@@ -261,59 +185,9 @@ state NormalFire
 	}
 }
 
-/*
-///////////////////////////////////////////////////////////////////////////////
-// Finish a sequence
-///////////////////////////////////////////////////////////////////////////////
-function Finish()
-{
-	local bool bOldSwappedBack;
-
-	bOldSwappedBack = bSwappedBack;
-
-	if(AmmoType.AmmoAmount == AmmoType.MaxAmmo)
-	{
-		// Send the clipboard weapon to a state that will put it down, then
-		// remove it forever from your inventory
-		SwapBackToHands();
-//		GotoState('EmptyDownWeapon');
-	}
-	//else
-
-	if(bOldSwappedBack==bSwappedBack)
-		Super.Finish();
-}
-*/
-
-///////////////////////////////////////////////////	////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-// EmptyDownWeapon
-// For grenades, thrown things, napalm launcher, where he must put away
-// and empty or non-existant weapon (like he's got nothing in his hands)
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-// state DownWeaponRemove extends DownWeapon
-// {
-// 	simulated function AnimEnd(int Channel)
-// 	{
-// 		P2Player(Instigator.Controller).SwitchToThisWeapon(class'HandsWeapon'.Default.InventoryGroup,class'HandsWeapon'.Default.GroupOffset);
-// 		Super.AnimEnd(Channel);
-// 		GotoState('');
-// 	}
-
-// 	function EndState()
-// 	{
-// 		P2Player(Instigator.Controller).SwitchToThisWeapon(class'HandsWeapon'.Default.InventoryGroup,class'HandsWeapon'.Default.GroupOffset);
-// 		//SwapBackToHands();
-// 	}
-
-// }
-
-///////////////////////////////////////////////////////////////////////////////
-// Default properties
-///////////////////////////////////////////////////////////////////////////////
+//#############################################################################
+// Default Properties
+//#############################################################################
 defaultproperties
 	{
 	bNoHudReticle=true
