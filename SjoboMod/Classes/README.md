@@ -3,8 +3,8 @@ This folder contains all classes, and by looking on other class folders
 in the Postal 2 Editor folder I realize it does not support subfolders.
 
 ## Getting started
-An easy way to get started is by figurin out what parent class matches the
-cloest to what you want to do, then you make your own class and extend it.
+An easy way to get started is by figuring out what parent class matches the
+closest to what you want to do, then you make your own class and extend it.
 
 Modify the original logic by overriding functions or add your completely own.
 
