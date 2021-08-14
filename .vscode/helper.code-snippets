@@ -59,7 +59,7 @@
 			"    Sleep(2.0 - MyPawn.Reactivity); // Required if state is gonna loop itself, or else game crashes",
 			"",
 			"    // To prevent the character from going into limbo",
-			"    if(MyNextState == None)",
+			"    if(MyNextState == 'None')",
 			"        GotoStateSave('${1:NameOfState}');",
 			"    GoToNextState();",
 			"",
