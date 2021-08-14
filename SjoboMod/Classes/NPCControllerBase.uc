@@ -3,6 +3,10 @@
 //#############################################################################
 class NPCControllerBase extends BystanderController;
 
+//#############################################################################
+// Properties
+//#############################################################################
+var name NewState;
 
 //#############################################################################
 // Helper Methods
@@ -56,4 +60,21 @@ function Inventory AddItem(class<Inventory> itemClass){
         return None;
     }
     return item;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// GotoStateSave - Normal behavior + Sets NewState property to provided state
+///////////////////////////////////////////////////////////////////////////////
+function GotoStateSave(name ANewState, optional name ANewLabel)
+{
+    NewState = ANewState;
+    Super.GotoStateSave(ANewState, ANewLabel);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// IsUpcomingState - Checks if NextState or NewState is equals to provided name
+///////////////////////////////////////////////////////////////////////////////
+function bool IsUpcomingState(name stateName)
+{
+    return stateName == MyNextState || stateName == NewState;
 }

@@ -27,6 +27,7 @@ var Texture NameTextures[3];		// Textures of names to be written on the clipboar
 var Sound   WritingSound;			// Sound for when things are signed
 var NPC Target;
 var NPCController TargetController;	
+var name SuggestedTag;
 
 
 //#############################################################################
@@ -105,7 +106,7 @@ function TraceFireNoneSelected(PlayerController player, float accuracy, float yO
 		}
 	}
 	Target = NPC(GetTarget(Accuracy,YOffset,ZOffset));
-	if(target != None){
+	if(Target != None){
 		TargetController = NPCController(target.Controller);
 		TargetController.InterestPawn = FPSPawn(Instigator);
 		TargetController.GotoStateSave('ReactToLandlordSpeaking');
@@ -126,19 +127,46 @@ function TraceFireOfferHousing(PlayerController player)
 ///////////////////////////////////////////////////////////////////////////////
 function TraceFireShowHousing(PlayerController player)
 {
+	local NPC npc;
 	local HomeNode selectedHomeNode, homeNode;
-	local float lowestDistance;
+	local float lowestDistance, distance;
+	local PlayerLandlordHUD hud;
 
-	// Scan for the closest HomeNode within 600 units
-	// foreach DynamicActors(class'HomeNode', pawn){
-	// 	homeNode = HomeNode(pawn);
-	// 	if(VSize(player.Location - homeNode.Location) > 300){
-	// 		continue;
-	// 	}
-	// 	if(selectedHomeNode != None){
+	// Scan for the closest HomeNode within 300 units
+	foreach RadiusActors(class'HomeNode', homeNode, 600, Instigator.Location)
+	{
+		distance = VSize(Instigator.Location - homeNode.Location);
+		if(homeNode.Tag == '')
+			continue;
+		if(selectedHomeNode != None && distance > lowestDistance)
+			continue;
+		selectedHomeNode = homeNode;
+		lowestDistance = distance;
+	}
 
-	// 	}
-	// }
+	if(selectedHomeNode == None){
+		hud = PlayerLandlordHUD(player.MyHUD);
+		hud.DisplayMessage("You need to be close to a living quarter");
+		return;
+	}
+
+	// Check if HomeNode already has an occupant or rentée
+	foreach DynamicActors(class'NPC', npc){
+		if(npc.NPCHomeTag == selectedHomeNode.Tag || npc.HomeTag == selectedHomeNode.Tag){
+			hud = PlayerLandlordHUD(player.MyHUD);
+			hud.DisplayMessage("This living quarter is already occupied");
+			return;
+		}
+	}
+
+	if(VSize(Instigator.Location - Target.Location) > 300){
+		hud = PlayerLandlordHUD(player.MyHUD);
+		hud.DisplayMessage("Wait for POI to arrive first");
+		return;
+	}
+
+	SuggestedTag = selectedHomeNode.Tag;
+	TargetController.GotoStateSave('DecideOnHousing');
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -147,6 +175,7 @@ function TraceFireShowHousing(PlayerController player)
 function TraceFireCancel(PlayerController player)
 {
 	Target = None;
+	TargetController = None;
 	SetClipboardState(LCB_NONE_SELECTED);
 	TargetController.GotoState('Thinking');
 }

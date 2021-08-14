@@ -8,6 +8,7 @@ class NPCController extends NPCControllerBase;
 // Properties
 //#############################################################################
 var bool HasBeenSetup, HasBeenBotheredRegardingRenting;
+var bool IsBusy; // If true then it will prevent SMInterestPoints from fireing
 var int Salary;
 var NPC NPC;
 var PlayerLandlordController InterestPlayerController;
@@ -64,6 +65,37 @@ function AddSalaryToBankAccount(){
     MoneyInv(MustGetOrCreateItem(class'MoneyInv')).Amount += Salary;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// EndStateClipboard - Invoked by BeginState of all Clipboard related states
+///////////////////////////////////////////////////////////////////////////////
+function EndStateClipboard()
+{
+    if(LandlordClipboard.Target != MyPawn){
+        return;
+    }
+    LandlordClipboard.Target = None;
+    LandlordClipboard.SetClipboardState(LCB_NONE_SELECTED);
+    InterestPlayerController = None;
+    InterestPawn = None;
+    LandlordClipboard = None;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// BeginStateClipboard - Invoked by EndState of all Clipboard related states
+///////////////////////////////////////////////////////////////////////////////
+function BeginStateClipboard()
+{
+    MyPawn.StopAcc();
+
+    InterestPlayerController = PlayerLandlordController(InterestPawn.Controller);
+    WaitTimeoutExpire = Level.TimeSeconds + WaitTimeout;
+    LandlordClipboard = LandlordClipboardWeapon(InterestPlayerController.GetItem(class'SjoboMod.LandlordClipboardWeapon'));
+
+    Focus = InterestPawn;
+    HasGivenAttention = false;
+    IsBusy = true;
+}
+
 
 //#############################################################################
 // States
@@ -79,6 +111,7 @@ state Thinking {
             HasBeenSetup = true;
             Setup();
         }
+        IsBusy = false;
         Super.BeginState();
     }
 }
@@ -91,26 +124,14 @@ state ReactToLandlordSpeaking
 
 	function BeginState()
 	{
-		MyPawn.StopAcc();
-
-        InterestPlayerController = PlayerLandlordController(InterestPawn.Controller);
-        WaitTimeoutExpire = Level.TimeSeconds + WaitTimeout;
-        LandlordClipboard = LandlordClipboardWeapon(InterestPlayerController.GetItem(class'SjoboMod.LandlordClipboardWeapon'));
-
-        Focus = InterestPawn;
-        HasGivenAttention = false;
+		BeginStateClipboard();
 	}
 
     function EndState()
 	{
 		Super.EndState();
-        if(LandlordClipboard.Target == MyPawn && MyNextState == 'Thinking'){
-            LandlordClipboard.Target = None;
-            LandlordClipboard.SetClipboardState(LCB_NONE_SELECTED);
-            InterestPlayerController = None;
-            InterestPawn = None;
-            LandlordClipboard = None;
-        }
+        if(IsUpcomingState('Thinking'))
+            EndStateClipboard();
 	}
 
 Begin:
@@ -132,29 +153,7 @@ Begin:
     
 	
 
-    // if(NPC.NPCHomeTag == ""){ // I have no home
-    //     log("#### I have no home");
-    //     // Consider renting an apartment
-    //     if(Salary < 20){
-    //         PrintDialogue("Can't afford one");
-    //         if(HasBeenBotheredRegardingRenting){
-    //             NPC.SetMood(MOOD_Angry, 1.0);
-    //             Sleep(Say(MyPawn.myDialog.lDefiant, true));
-    //         }else{
-    //             Sleep(Say(MyPawn.myDialog.lDontAcceptDeal, true));
-    //         }
-    //         HasBeenBotheredRegardingRenting = true;
-    //         GotoStateSave('Thinking');
-    //     }else{
-    //         PrintDialogue("Yes please, show me my apartment");
-    //         // No idea
-    //         Sleep(Say(MyPawn.myDialog.lYes, true));
-    //         Focus = None;
-    //         GotoStateSave('FollowLandlordToPotentialHousing');
-    //     }
-    // }else{ // I have a home
-
-    // }
+   
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -164,23 +163,32 @@ state FollowLandlordToPotentialHousing
 {
     function BeginState()
 	{
-        
-		PrintThisState();
-		MyPawn.StopAcc();
+		BeginStateClipboard();
+	}
 
-        InterestPlayerController = PlayerLandlordController(InterestPawn.Controller);
-        WaitTimeoutExpire = Level.TimeSeconds + WaitTimeout;
-        LandlordClipboard = LandlordClipboardWeapon(InterestPlayerController.GetItem(class'SjoboMod.LandlordClipboardWeapon'));
-
-        Focus = InterestPawn;
-        HasGivenAttention = false;
+    function EndState()
+	{
+		Super.EndState();
+        if(!IsUpcomingState('WalkToTarget') && !IsUpcomingState('DecideOnHousing'))
+            EndStateClipboard();
 	}
 
 Begin:
-    if(InterestPawn == None){
+    if(Salary < 20){
+        if(HasBeenBotheredRegardingRenting){
+            NPC.SetMood(MOOD_Angry, 1.0);
+            Sleep(Say(MyPawn.myDialog.lDefiant, true));
+        }else{
+            Sleep(Say(MyPawn.myDialog.lDontAcceptDeal, true));
+        }
+        HasBeenBotheredRegardingRenting = true;
         GotoStateSave('Thinking');
+    }
+    if(InterestPawn == None){
+        log("No more interest");
+        SetNextState('Thinking');
     }else if(VSize(InterestPawn.Location - MyPawn.Location) > 300){
-        EndGoal = InterestPawn;
+        SetEndGoal(InterestPawn, 70);
         SetNextState('FollowLandlordToPotentialHousing');
         GotoStateSave('WalkToTarget');
     }else{
@@ -199,5 +207,41 @@ Begin:
         Sleep(2.0 - MyPawn.Reactivity);
         SetNextState('FollowLandlordToPotentialHousing');
     }
-    GoToNextState();
+    GoToNextState(true);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// DecideOnHousing - Invoked on Show Housing action
+///////////////////////////////////////////////////////////////////////////////
+state DecideOnHousing
+{
+
+    function BeginState()
+	{
+		BeginStateClipboard();
+	}
+
+    function EndState()
+	{
+		Super.EndState();
+        if(!IsUpcomingState('FollowLandlordToPotentialHousing'))
+            EndStateClipboard();
+	}
+
+Begin:
+    if(false){ // TODO: craete a fair way of denial
+        Sleep(Say(MyPawn.myDialog.lDontAcceptDeal, true));
+        GotoStateSave('FollowLandlordToPotentialHousing');
+    }
+    Sleep(Say(MyPawn.myDialog.lAcceptDeal, true));
+    NPC.NPCHomeTag = LandlordClipboard.SuggestedTag;
+    NPC.HomeTag = NPC.NPCHomeTag;
+    FindHomeList(NPC.HomeTag);
+    NPC.bCanEnterHomes = true;
+
+    // To prevent the character from going into limbo
+    if(MyNextState == 'None')
+        GotoStateSave('Thinking');
+    GoToNextState(true);
+
 }
