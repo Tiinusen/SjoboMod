@@ -66,26 +66,61 @@ function AddSalaryToBankAccount(){
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// EndStateClipboard - Invoked by BeginState of all Clipboard related states
+// SetHome - HomeNode.Tag for were the NPC now lives
 ///////////////////////////////////////////////////////////////////////////////
-function EndStateClipboard()
+function SetHome(name tag)
 {
-    if(LandlordClipboard.Target != MyPawn){
-        return;
-    }
-    LandlordClipboard.Target = None;
-    LandlordClipboard.SetClipboardState(LCB_NONE_SELECTED);
-    InterestPlayerController = None;
-    InterestPawn = None;
-    LandlordClipboard = None;
+    NPC.NPCHomeTag = tag;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// SetWork - HomeNode.Tag for were the NPC now works
+///////////////////////////////////////////////////////////////////////////////
+function SetWork(name tag)
+{
+    NPC.NPCWorkTag = tag;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// GoToHome - Makes NPC go to living quarter
+///////////////////////////////////////////////////////////////////////////////
+function GoToHome()
+{
+    NPC.HomeTag = NPC.NPCHomeTag;
+    FindHomeList(NPC.HomeTag);
+    NPC.bCanEnterHomes = true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// GoToWork - Makes NPC go to work
+///////////////////////////////////////////////////////////////////////////////
+function GoToWork()
+{
+    NPC.HomeTag = NPC.NPCWorkTag;
+    FindHomeList(NPC.HomeTag);
+    NPC.bCanEnterHomes = true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// GoForWalk - Makes NPC go for a walk
+///////////////////////////////////////////////////////////////////////////////
+function GoForWalk()
+{
+    NPC.HomeTag = '';
+    NPC.bCanEnterHomes = false;
+}
+
+
+//#############################################################################
+// Landlord Clipboard related functions
+//#############################################################################
 
 ///////////////////////////////////////////////////////////////////////////////
 // BeginStateClipboard - Invoked by EndState of all Clipboard related states
 ///////////////////////////////////////////////////////////////////////////////
 function BeginStateClipboard()
 {
-    MyPawn.StopAcc();
+    NPC.StopAcc();
 
     InterestPlayerController = PlayerLandlordController(InterestPawn.Controller);
     WaitTimeoutExpire = Level.TimeSeconds + WaitTimeout;
@@ -94,6 +129,21 @@ function BeginStateClipboard()
     Focus = InterestPawn;
     HasGivenAttention = false;
     IsBusy = true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// EndStateClipboard - Invoked by BeginState of all Clipboard related states
+///////////////////////////////////////////////////////////////////////////////
+function EndStateClipboard()
+{
+    if(LandlordClipboard == None || LandlordClipboard.Target != NPC){
+        return;
+    }
+    LandlordClipboard.Target = None;
+    LandlordClipboard.SetClipboardState(LCB_NONE_SELECTED);
+    InterestPlayerController = None;
+    InterestPawn = None;
+    LandlordClipboard = None;
 }
 
 
@@ -112,9 +162,14 @@ state Thinking {
             Setup();
         }
         IsBusy = false;
+        EndStateClipboard(); // To make sure to clear the clipboard vars in case NPC gets stuck on something
         Super.BeginState();
     }
 }
+
+//#############################################################################
+// States - Invoked by Landlord Clipboard
+//#############################################################################
 
 ///////////////////////////////////////////////////////////////////////////////
 // ReactToLandlordSpeaking - Invoked on Select Dude action
@@ -135,15 +190,17 @@ state ReactToLandlordSpeaking
 	}
 
 Begin:
-    Sleep(2.0 - MyPawn.Reactivity);
-    if(WaitTimeoutExpire < Level.TimeSeconds || LandlordClipboard.Target != MyPawn || VSize(InterestPawn.Location - MyPawn.Location) > 300){
+    Sleep(2.0 - NPC.Reactivity);
+    if(NPC.GetMood() == MOOD_Angry || WaitTimeoutExpire < Level.TimeSeconds || LandlordClipboard.Target != NPC || VSize(InterestPawn.Location - NPC.Location) > 300){
+        HasBeenBotheredRegardingRenting = true;
         NPC.SetMood(MOOD_Angry, 1.0);
-        Sleep(Say(MyPawn.myDialog.lDefiant, true));
+        NPC.PlayTellOffAnim();
+        Sleep(Say(NPC.myDialog.lDefiant, true));
         if(MyNextState == 'None')
             SetNextState('Thinking');
     }else if(!HasGivenAttention){
         HasGivenAttention = true;
-        Sleep(Say(MyPawn.myDialog.lGreeting, true));
+        Sleep(Say(NPC.myDialog.lGreeting, true));
         LandlordClipboard.TargetGivesAttention();
     }
     if(MyNextState == 'None')
@@ -166,45 +223,41 @@ state FollowLandlordToPotentialHousing
 		BeginStateClipboard();
 	}
 
-    function EndState()
-	{
-		Super.EndState();
-        if(!IsUpcomingState('WalkToTarget') && !IsUpcomingState('DecideOnHousing'))
-            EndStateClipboard();
-	}
-
 Begin:
     if(Salary < 20){
         if(HasBeenBotheredRegardingRenting){
             NPC.SetMood(MOOD_Angry, 1.0);
-            Sleep(Say(MyPawn.myDialog.lDefiant, true));
+            NPC.PlayTellOffAnim();
+            Sleep(Say(NPC.myDialog.lDefiant, true));
         }else{
-            Sleep(Say(MyPawn.myDialog.lDontAcceptDeal, true));
+            Sleep(Say(NPC.myDialog.lDontAcceptDeal, true));
         }
         HasBeenBotheredRegardingRenting = true;
         GotoStateSave('Thinking');
     }
     if(InterestPawn == None){
-        log("No more interest");
+        log("Lost interest");
         SetNextState('Thinking');
-    }else if(VSize(InterestPawn.Location - MyPawn.Location) > 300){
+    }else if(VSize(InterestPawn.Location - NPC.Location) > 300){
         SetEndGoal(InterestPawn, 70);
         SetNextState('FollowLandlordToPotentialHousing');
         GotoStateSave('WalkToTarget');
     }else{
         if(!HasGivenAttention){
             HasGivenAttention = true;
-            Sleep(Say(MyPawn.myDialog.lYes, true));
-        }else if(WaitTimeoutExpire < Level.TimeSeconds || LandlordClipboard.Target != MyPawn){
+            Sleep(Say(NPC.myDialog.lYes, true));
+        }else if(WaitTimeoutExpire < Level.TimeSeconds || LandlordClipboard.Target != NPC){
+            HasBeenBotheredRegardingRenting = true;
             NPC.SetMood(MOOD_Angry, 1.0);
-            Sleep(Say(MyPawn.myDialog.lDefiant, true));
+            NPC.PlayTellOffAnim();
+            Sleep(Say(NPC.myDialog.lDefiant, true));
             if(MyNextState == 'None')
                 SetNextState('Thinking');
         }
     }
 
     if(MyNextState == 'None'){
-        Sleep(2.0 - MyPawn.Reactivity);
+        Sleep(2.0 - NPC.Reactivity);
         SetNextState('FollowLandlordToPotentialHousing');
     }
     GoToNextState(true);
@@ -221,27 +274,17 @@ state DecideOnHousing
 		BeginStateClipboard();
 	}
 
-    function EndState()
-	{
-		Super.EndState();
-        if(!IsUpcomingState('FollowLandlordToPotentialHousing'))
-            EndStateClipboard();
-	}
-
 Begin:
+    Sleep(2.0 - NPC.Reactivity); // Required if state is gonna loop itself, or else game crashes
     if(false){ // TODO: craete a fair way of denial
-        Sleep(Say(MyPawn.myDialog.lDontAcceptDeal, true));
+        Sleep(Say(NPC.myDialog.lDontAcceptDeal, true));
         GotoStateSave('FollowLandlordToPotentialHousing');
     }
-    Sleep(Say(MyPawn.myDialog.lAcceptDeal, true));
-    NPC.NPCHomeTag = LandlordClipboard.SuggestedTag;
-    NPC.HomeTag = NPC.NPCHomeTag;
-    FindHomeList(NPC.HomeTag);
-    NPC.bCanEnterHomes = true;
+    Sleep(Say(NPC.myDialog.lAcceptDeal, true));
 
-    // To prevent the character from going into limbo
-    if(MyNextState == 'None')
-        GotoStateSave('Thinking');
-    GoToNextState(true);
+    NPC.AnimBlendParams(15, 1.0, 0,0);
+	NPC.PlayAnim('s_give', 1.0, 0.2, 15);
+    LandlordClipboard.CauseAltFire();
 
+    // Next state will be set by LandlordClipboardWeapon, so this is not a misstake (see Use Case in LandlordClipboardWeapon.uc (at the bottom))
 }

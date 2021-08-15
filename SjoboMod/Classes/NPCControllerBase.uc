@@ -7,6 +7,7 @@ class NPCControllerBase extends BystanderController;
 // Properties
 //#############################################################################
 var name NewState;
+var NPC NPC;
 
 //#############################################################################
 // Helper Methods

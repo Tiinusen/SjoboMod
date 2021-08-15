@@ -98,14 +98,14 @@ function TraceFire( float accuracy, float yOffset, float zOffset )
 function TraceFireNoneSelected(PlayerController player, float accuracy, float yOffset, float zOffset)
 {
 	if(Target != None){
-		if(!Target.IsInState('ReactToLandlordSpeaking')){
+		if(Target.Health == 0 || !Target.IsInState('ReactToLandlordSpeaking')){
 			Target = None;
 		}
 		if(Target != None){
 			return;
 		}
 	}
-	Target = NPC(GetTarget(Accuracy,YOffset,ZOffset));
+	Target = NPC(GetTargetAlive(Accuracy,YOffset,ZOffset));
 	if(Target != None){
 		TargetController = NPCController(target.Controller);
 		TargetController.InterestPawn = FPSPawn(Instigator);
@@ -195,13 +195,19 @@ simulated function AltFire( float Value )
 			AltFireNoneSelected(player);
 			break;
 		case LCB_OFFER_HOUSING:
-			SetClipboardState(LCB_OFFER_WORK);
+			if(Target.NPCWorkTag == '')
+				SetClipboardState(LCB_OFFER_WORK);
+			else
+				SetClipboardState(LCB_CANCEL);
 			break;
 		case LCB_OFFER_WORK:
 			SetClipboardState(LCB_CANCEL);
 			break;
 		case LCB_CANCEL:
-			SetClipboardState(LCB_OFFER_HOUSING);
+			if(Target.HomeTag == '' && Target.NPCHomeTag == '')
+				SetClipboardState(LCB_OFFER_HOUSING);
+			else if(Target.NPCWorkTag == '')
+				SetClipboardState(LCB_OFFER_WORK);
 			break;
 	}
 }
@@ -233,6 +239,12 @@ simulated function Notify_PetitionSigned()
 		return;
 
 	Instigator.PlayOwnedSound(WritingSound, SLOT_Misc, 1.0, , , WeaponFirePitchStart + (FRand()*WeaponFirePitchRand));
+
+	TargetController.SetHome(SuggestedTag);
+	TargetController.GoToHome();
+	TargetController.GotoStateSave('Thinking');
+
+	MoneyInv(player.MustGetOrCreateItem(class'Inventory.MoneyInv')).Amount += 20;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -240,7 +252,12 @@ simulated function Notify_PetitionSigned()
 ////////////////////////////////////////////////////////////////////////////////////////
 function TargetGivesAttention()
 {
-	SetClipboardState(LCB_OFFER_HOUSING);
+	if(Target.HomeTag == '' && Target.NPCHomeTag == '')
+		SetClipboardState(LCB_OFFER_HOUSING);
+	else if(Target.NPCWorkTag == '')
+		SetClipboardState(LCB_OFFER_WORK);
+	else
+		SetClipboardState(LCB_CANCEL);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -375,7 +392,7 @@ defaultproperties
 	ThirdPersonRelativeLocation=(X=6,Z=5)
 	ThirdPersonRelativeRotation=(Yaw=-1600,Roll=-16384)
 	PlayerViewOffset=(X=2,Y=0,Z=-8)
-	}
+}
 
 
 //#############################################################################
@@ -404,7 +421,7 @@ defaultproperties
 //                           └─────────────┼─► DecideOnHousing ─────────┘
 //                                         │         │
 //                                         │         │ Yes
-//                                         │         ▼
-//                 Notify_PetitionSigned ◄─┼── SignHousingContract
+//                                         │         │
+//                 Notify_PetitionSigned ◄─┼─────────┘
 //                                         │
 //                                         │

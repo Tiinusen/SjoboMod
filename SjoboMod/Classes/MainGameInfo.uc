@@ -8,12 +8,14 @@ class MainGameInfo extends EmptyGameInfo;
 // Properties
 //#############################################################################
 var float NextDayWhenTimeElapsedPassed;
+var float TimeElapsedWithOffset;
 
 
 //#############################################################################
 // Constants
 //#############################################################################
 const DayLengthInSeconds = 1440; // 24*60
+const DayStartOffset = 780;
 
 
 //#############################################################################
@@ -54,14 +56,55 @@ event Tick(float Delta)
 	local NPCCOntroller controller;
 
 	Super.Tick(Delta);
+	TimeElapsedWithOffset = TheGameState.TimeElapsed + DayStartOffset;
 
-	if(NextDayWhenTimeElapsedPassed <= TheGameState.TimeElapsed){
-		NextDayWhenTimeElapsedPassed = TheGameState.TimeElapsed + DayLengthInSeconds;
+	if(NextDayWhenTimeElapsedPassed <= TimeElapsedWithOffset){
+		NextDayWhenTimeElapsedPassed = TimeElapsedWithOffset + DayLengthInSeconds;
 		foreach DynamicActors(class'NPC', pawn){
 			controller = NPCController(pawn.Controller);
 			controller.NewDay();
 		}
 	}
+}
+
+//#############################################################################
+// Simulated Time Functions
+//#############################################################################
+
+///////////////////////////////////////////////////////////////////////////////
+// GetClock - Returns a string containing time formatted for dudekind reading
+///////////////////////////////////////////////////////////////////////////////
+function string GetClock(optional bool showDay)
+{
+	local int minutes, hours, days;
+	local string time;
+    GetElapsedTime(minutes, hours, days, time);
+	if(showDay){
+		time = "Day "@(days+1)@" "@time;
+	}
+	return time;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// GetElapsedTime - Outs the lapsed amount of hours, minutes, days and what time
+///////////////////////////////////////////////////////////////////////////////
+function GetElapsedTime(out int hours, out int minutes, optional out int days, optional out string time)
+{
+    local int remainers;
+    local string padHours, padMinutes;
+
+    days = TimeElapsedWithOffset / DayLengthInSeconds;
+    remainers = TimeElapsedWithOffset - (days * DayLengthInSeconds);
+    minutes = int((float(remainers) / float(DayLengthInSeconds)) * 24 * 60);
+    hours = minutes / 60; 
+    minutes -= hours * 60;
+    if(hours < 10){
+        padHours = " ";
+    }
+    if(minutes < 10){
+        padMinutes = "0";
+    }
+	time = padHours@hours@":"@padMinutes@minutes;
 }
 
 

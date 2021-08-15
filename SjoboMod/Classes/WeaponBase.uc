@@ -10,7 +10,20 @@ class WeaponBase extends P2Weapon
 //#############################################################################
 
 /////////////////////////////////////////////////////////////////////////////////////////
-// GetTarget - Gets target in front of weapon
+// GetTargetAliveNPC - Gets target in front of weapon which is alive of a pawn type
+/////////////////////////////////////////////////////////////////////////////////////////
+function Actor GetTargetAlive(float accuracy, float yOffset, float zOffset)
+{
+	local Pawn pawn;
+	pawn = Pawn(GetTarget(accuracy, yOffset, zOffset));
+	if(pawn != None && pawn.Health == 0){
+		return None;
+	}
+    return pawn;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+// GetTarget - Gets target in front of weapon (only alive targets)
 /////////////////////////////////////////////////////////////////////////////////////////
 function Actor GetTarget(float accuracy, float yOffset, float zOffset)
 {
