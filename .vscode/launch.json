@@ -9,7 +9,7 @@
             "program": ".vscode/launch.js",
             "args": [
                 "Postal2",
-                "Elefanten"
+                "ws-Elefanten"
             ],
             "preLaunchTask": "Make (ucc.exe)"
         },
