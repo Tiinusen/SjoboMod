@@ -17,6 +17,7 @@ Just like it looked like they did when they developed their original game.
   - [Packaging (For Steam Workshop)](#packaging-for-steam-workshop)
   - [Documentation](#documentation)
   - [Troubleshooting](#troubleshooting)
+    - [I keep exploding when I start the map !](#i-keep-exploding-when-i-start-the-map-)
     - [Errors that aren't errors](#errors-that-arent-errors)
     - [I know that variable/function/class exists !](#i-know-that-variablefunctionclass-exists-)
 
@@ -92,6 +93,9 @@ TBD, and will also create a template repository once I've reached a good finish 
 - [Unreal Script Documentation](https://beyondunrealwiki.github.io/)
 - [Some OK tutorials to get started](https://www.moddb.com/games/postal-2/tutorials)
 - [Postal 2 Modding on Postal Fandom](https://postal.fandom.com/wiki/POSTAL2_Modding)
+
+My thanks to the authors of the existing documentations/tutorials, elsewise this would have been
+a complete reverse engineering project and would have taken so much longer.
 
 ## Troubleshooting
 Here's a troubleshooting section that I expect to grow.
